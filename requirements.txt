@@ -1,0 +1,4 @@
+pandas
+statsapi
+SQLAlchemy
+psycopg2-binary
