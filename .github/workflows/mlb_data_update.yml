@@ -1,0 +1,41 @@
+name: MLB Scorigami Data Updater
+
+on:
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+  schedule:
+    - cron: '0 13 * * *' # Runs daily at 13:00 UTC (e.g., 6:00 AM PDT or 9:00 AM EDT). Adjust as needed.
+
+jobs:
+  update-mlb-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Or your preferred Python version that matches your script
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run MLB Scorigami script
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+        run: python fetch_daily_gamelogs.py # <-- IMPORTANT: Make sure this is the correct name of your Python script!
+
+      # Optional: Upload the generated CSV as an artifact
+      - name: Upload Gamelogs CSV as Artifact
+        if: success() # Only run if the script was successful and generated the CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlb-gamelogs-csv
+          path: outputs/mlb_franchise_gamelogs.csv # Path where the script saves the CSV
+          retention-days: 7 # Optional: How long to keep the artifact
