@@ -1,4 +1,4 @@
 pandas
-statsapi
+MLB-StatsAPI
 SQLAlchemy
 psycopg2-binary
